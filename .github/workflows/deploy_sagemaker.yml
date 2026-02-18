@@ -12,8 +12,8 @@ jobs:
       MODEL_NAME: HRModel
       MODEL_URI: ${{ github.event.client_payload.model_uri }}
       ROLE_ARN: arn:aws:iam::236013686531:role/service-role/SageMaker-mlops-demo
-      ENDPOINT_CONFIG_NAME: TrainingCourses-endpoint-config
-      ENDPOINT_NAME: TrainingCourses-endpoint
+      ENDPOINT_CONFIG_NAME: HRModel-endpoint-config
+      ENDPOINT_NAME: HRModel-endpoint
       
     steps:
     - name: Checkout code
