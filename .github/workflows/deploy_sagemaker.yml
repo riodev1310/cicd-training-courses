@@ -18,6 +18,11 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
       
     - name: Install requirements
       run: pip install --no-cache-dir -r requirements.txt
@@ -39,7 +44,7 @@ jobs:
 
     - name: Create S3 Bucket if not exists
       run: |
-        aws s3 mb s3://package-model-for-sagemaker-deploy || true
+        aws s3 mb s3://package-model-for-sagemaker-deploy-rio || true
 
     - name: Docker Setup Buildx
       uses: docker/setup-buildx-action@v3.10.0
