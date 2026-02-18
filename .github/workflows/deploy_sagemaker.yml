@@ -37,6 +37,10 @@ jobs:
       run: |
         aws ecr create-repository --repository-name mlflow --region ap-southeast-2 || true
 
+    - name: Create S3 Bucket if not exists
+      run: |
+        aws s3 mb s3://package-model-for-sagemaker-deploy || true
+
     - name: Docker Setup Buildx
       uses: docker/setup-buildx-action@v3.10.0
 
@@ -52,32 +56,34 @@ jobs:
 
     - name: Delete Existing SageMaker Model
       run: |
-        aws sagemaker delete-model --model-name ${{ env.MODEL_NAME }} || true
+        aws sagemaker delete-model --model-name ${{ env.MODEL_NAME }} --region ap-southeast-2 || true
 
     - name: Create Sagemaker Model
       run: mlflow sagemaker push-model --model-name ${{ env.MODEL_NAME }} --model-uri ${{ env.MODEL_URI }} --execution-role-arn ${{ env.ROLE_ARN }} --bucket package-model-for-sagemaker-deploy --image-url ${{ env.image_uri }} --region-name ap-southeast-2
     
     - name: Delete Existing Endpoint Configuration
       run: |
-        aws sagemaker delete-endpoint-config --endpoint-config-name ${{ env.ENDPOINT_CONFIG_NAME }} || true
+        aws sagemaker delete-endpoint-config --endpoint-config-name ${{ env.ENDPOINT_CONFIG_NAME }} --region ap-southeast-2 || true
 
     - name: Create Sagemaker Endpoint Configuration
       run: |
         aws sagemaker create-endpoint-config \
           --endpoint-config-name ${{ env.ENDPOINT_CONFIG_NAME }} \
-          --production-variants '[{"VariantName":"AllTraffic","ModelName":"${{ env.MODEL_NAME }}","InstanceType":"ml.t2.medium","InitialInstanceCount":1}]'
+          --production-variants '[{"VariantName":"AllTraffic","ModelName":"${{ env.MODEL_NAME }}","InstanceType":"ml.t2.medium","InitialInstanceCount":1}]' \
+          --region ap-southeast-2
 
     - name: Delete Existing SageMaker Endpoint
       run: |
-        aws sagemaker delete-endpoint --endpoint-name ${{ env.ENDPOINT_NAME }} || true
-        aws sagemaker wait endpoint-deleted --endpoint-name ${{ env.ENDPOINT_NAME }} || true
+        aws sagemaker delete-endpoint --endpoint-name ${{ env.ENDPOINT_NAME }} --region ap-southeast-2 || true
+        aws sagemaker wait endpoint-deleted --endpoint-name ${{ env.ENDPOINT_NAME }} --region ap-southeast-2 || true
         
     - name: Deploy Sagemaker Endpoint
       run: |
         aws sagemaker create-endpoint \
           --endpoint-name ${{ env.ENDPOINT_NAME }} \
-          --endpoint-config-name ${{ env.ENDPOINT_CONFIG_NAME }}
+          --endpoint-config-name ${{ env.ENDPOINT_CONFIG_NAME }} \
+          --region ap-southeast-2
 
     - name: Wait for Endpoint
       run: |
-        aws sagemaker wait endpoint-in-service --endpoint-name ${{ env.ENDPOINT_NAME }}
+        aws sagemaker wait endpoint-in-service --endpoint-name ${{ env.ENDPOINT_NAME }} --region ap-southeast-2
