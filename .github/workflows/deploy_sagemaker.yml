@@ -9,7 +9,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      MODEL_NAME: TrainingCoursesModel
+      MODEL_NAME: HRModel
       MODEL_URI: ${{ github.event.client_payload.model_uri }}
       ROLE_ARN: arn:aws:iam::236013686531:role/service-role/SageMaker-mlops-demo
       ENDPOINT_CONFIG_NAME: TrainingCourses-endpoint-config
