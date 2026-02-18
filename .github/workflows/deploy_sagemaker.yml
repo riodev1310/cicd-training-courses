@@ -59,7 +59,7 @@ jobs:
         aws sagemaker delete-model --model-name ${{ env.MODEL_NAME }} --region ap-southeast-2 || true
 
     - name: Create Sagemaker Model
-      run: mlflow sagemaker push-model --model-name ${{ env.MODEL_NAME }} --model-uri ${{ env.MODEL_URI }} --execution-role-arn ${{ env.ROLE_ARN }} --bucket package-model-for-sagemaker-deploy --image-url ${{ env.image_uri }} --region-name ap-southeast-2
+      run: mlflow sagemaker push-model --model-name ${{ env.MODEL_NAME }} --model-uri ${{ env.MODEL_URI }} --execution-role-arn ${{ env.ROLE_ARN }} --bucket package-model-for-sagemaker-deploy-rio --image-url ${{ env.image_uri }} --region-name ap-southeast-2
     
     - name: Delete Existing Endpoint Configuration
       run: |
