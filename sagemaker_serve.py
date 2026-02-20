@@ -10,7 +10,6 @@ from sklearn.preprocessing import LabelEncoder  # Thêm để encode categorical
 
 app = flask.Flask(__name__)
 
-
 # inference.py functions
 def get_model(model_dir):
     '''Load model from artifact store (e.g., MLflow or local)'''
@@ -56,30 +55,34 @@ def return_output(y_pred, content_type):
         return json.dumps({'predictions': y_pred.tolist()})  # Trả về list predictions (0/1)
     raise ValueError('Failed to send output')
 
-
-# Load the model at startup
+# Load the model lazily
 MODEL_PATH = "/opt/ml/model"  # Đường dẫn mặc định cho SageMaker
 model = None
 
-try:
-    model = get_model(MODEL_PATH)
-except Exception as e:
-    print(f"Failed to load model: {str(e)}")
+def load_model():
+    global model
+    if model is None:
+        try:
+            model = get_model(MODEL_PATH)
+            print("Model loaded successfully")  # In ra log để debug
+        except Exception as e:
+            print(f"Failed to load model: {str(e)}")
+            raise  # Raise để invocations fail nếu load lỗi
 
-# Ping endpoint
+# Ping endpoint - Luôn return 200 để health check pass
 @app.route("/ping", methods=["GET"])
 def ping():
     """SageMaker health check endpoint."""
-    if model is None:
-        return Response(status=500)
     return Response(status=200)
 
 # Invocation endpoint
 @app.route("/invocations", methods=["POST"])
 def invocations():
     """SageMaker inference endpoint."""
-    if model is None:
-        return Response(response="Model not loaded", status=500)
+    try:
+        load_model()  # Load model nếu chưa load
+    except Exception as e:
+        return Response(response=f"Model load error: {str(e)}", status=500)
 
     content_type = flask.request.content_type
     try:
