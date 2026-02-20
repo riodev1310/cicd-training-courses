@@ -18,7 +18,7 @@ RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2
 && rm -rf awscliv2.zip aws
 
 # Install AWS SDKs, gunicorn, and other dependencies
-RUN pip install boto3==1.37.30 gunicorn==23.0.0 flask==2.2.5 pandas==2.2.3 numpy==2.2.3
+RUN pip install boto3==1.37.30 gunicorn==23.0.0 flask==2.2.5 pandas==2.2.3 numpy==2.2.3 scikit-learn==1.8.0
 
 # Copy the SageMaker serving script and entrypoint script
 COPY sagemaker_serve.py /sagemaker_serve.py
